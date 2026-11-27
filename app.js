@@ -76,3 +76,9 @@ function pick(v){sec=v;put('sec',v);const name=v===60?'1분':v+'초';$('rew').te
 document.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>pick(+b.dataset.s));pick(sec);
 // 새로고침(홈 화면 앱에는 브라우저 버튼이 없음)
 $('reload').onclick=async()=>{$('reload').textContent='불러오는 중…';try{await (await navigator.serviceWorker.getRegistration()).update()}catch(e){}location.reload()};
+// 홈 화면에 추가: 아이폰은 방법 안내만 가능, 지원하는 브라우저(안드로이드 등)는 설치 창 표시
+let prompt_=null;
+const installed=navigator.standalone||matchMedia('(display-mode: standalone)').matches;
+$('install').hidden=!!installed;
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();prompt_=e});
+$('install').onclick=()=>{if(prompt_){prompt_.prompt();prompt_=null}else $('howto').hidden=!$('howto').hidden};
