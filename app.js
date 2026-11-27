@@ -8,9 +8,9 @@ const rate=()=>{au.playbackRate=au.defaultPlaybackRate=+$('rate').value};
 function load(){
   ready=false;now=-1;resume=+get(key(),0);au.src=src();rate();put('lang',lang);cues=(talk?TALK:D)[lang];$('talk').setAttribute('aria-pressed',talk);
   const sc=$('sc');sc.innerHTML='';
-  cues.forEach(([t,kind,text,p,ko])=>{const d=el('div','ln '+kind,'');if(kind==='gap')d.textContent='(대답해 보세요)';else{const x=el('span','tx',text);x.lang=CODE[lang];d.append(x,el('span','pr',p),el('small','',ko))}d.onclick=()=>{resume=0;au.currentTime=t+0.01;au.play().catch(()=>{})};sc.appendChild(d)});
+  ab=[];cues.forEach(([t,kind,text,p,ko],k)=>{const d=el('div','ln '+kind,'');if(kind==='gap')d.textContent='(대답해 보세요)';else{const x=el('span','tx',text);x.lang=CODE[lang];d.append(x,el('span','pr',p),el('small','',ko))}if(kind==='t'){const s=el('button','star','☆');s.setAttribute('aria-label','구간 반복 별표');s.setAttribute('aria-pressed',false);s.onclick=e=>{e.stopPropagation();star(k)};d.prepend(s)}d.onclick=()=>{if(outside(k))clearAB();resume=0;au.currentTime=t+0.01;au.play().catch(()=>{})};sc.appendChild(d)});
   $('vtl').textContent=SHORT[lang];document.querySelector('[data-v=both]').textContent='한/'+SHORT[lang];document.querySelectorAll('[data-l]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.l===lang));
-  mark(resume,true);saved();
+  showAB();mark(resume,true);saved();
   if('mediaSession' in navigator)navigator.mediaSession.metadata=new MediaMetadata({title:lesson.title+(talk?' 대화':'')+' ('+NAME[lang]+')',artist:'3개 국어 듣기',artwork:[{src:'icon-512.png',sizes:'512x512',type:'image/png'}]});
 }
 function mark(time,scroll){const c=cues;let k=-1;while(k+1<c.length&&c[k+1][0]<=time)k++;if(k===now)return;now=k;[...$('sc').children].forEach((d,j)=>d.classList.toggle('now',j===k));if(scroll&&k>0)$('sc').children[k].scrollIntoView({block:'center'})}
@@ -31,9 +31,36 @@ let drag=false;
 function bar(){const t=ready?au.currentTime:resume;$('seek').max=au.duration||0;$('dur').textContent=clock(au.duration);if(!drag){$('seek').value=t;$('cur').textContent=clock(t)}}
 ['timeupdate','durationchange','loadedmetadata','emptied','seeked'].forEach(n=>au.addEventListener(n,bar));
 $('seek').oninput=()=>{drag=true;$('cur').textContent=clock(+$('seek').value)};
-$('seek').onchange=()=>{drag=false;resume=0;au.currentTime=+$('seek').value;mark(au.currentTime,true)};
-$('rew').onclick=()=>{resume=0;au.currentTime=Math.max(0,au.currentTime-5);mark(au.currentTime,true)};
+$('seek').onchange=()=>{drag=false;const v=+$('seek').value;if(ab.length===2&&(v<cues[ab[0]][0]||v>=endOf(ab[1])))clearAB();resume=0;au.currentTime=+$('seek').value;mark(au.currentTime,true)};
+$('rew').onclick=()=>{resume=0;au.currentTime=Math.max(0,au.currentTime-sec);mark(au.currentTime,true)};
 $('play').onclick=()=>au.paused?au.play().catch(()=>{}):au.pause();
 ['play','pause','emptied','ended'].forEach(n=>au.addEventListener(n,()=>{$('play').classList.toggle('on',!au.paused);$('play').setAttribute('aria-label',au.paused?'재생':'일시정지')}));
 fetch('data/lessons.json').then(r=>r.json()).then(a=>{lessons=a;a.forEach(l=>{const b=el('button','',''),t=el('span','','');t.append(el('b','',l.title),el('small','',l.desc));b.append(el('span','ico',l.icon),t);b.onclick=()=>open(l);$('list').appendChild(b)})});
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+// 별표 두 개 사이 구간 반복
+let ab=[];
+const endOf=k=>k+1<cues.length?cues[k+1][0]:au.duration;
+const outside=k=>ab.length===2&&(k<ab[0]||k>ab[1]);
+function showAB(){
+  [...$('sc').children].forEach((d,k)=>{const s=d.querySelector('.star');if(s){const on=ab.includes(k);s.textContent=on?'★':'☆';s.setAttribute('aria-pressed',on)}d.classList.toggle('inab',ab.length===2&&!outside(k))});
+  $('ab').hidden=!ab.length;$('abt').textContent=ab.length===2?'★ 구간 반복 중':'★ 반복할 끝 문장의 별을 누르세요';
+}
+function clearAB(){ab=[];showAB()}
+function star(k){
+  if(ab.includes(k))ab=ab.filter(x=>x!==k);
+  else if(ab.length===1){ab=[ab[0],k].sort((a,b)=>a-b);resume=0;au.currentTime=cues[ab[0]][0]+0.01;au.play().catch(()=>{})}
+  else ab=[k];
+  showAB();
+}
+function loopAB(){if(ab.length===2&&ready&&!au.paused&&!au.seeking&&au.currentTime>=endOf(ab[1])-0.08)au.currentTime=cues[ab[0]][0]+0.01}
+au.addEventListener('timeupdate',loopAB);setInterval(loopAB,60);
+au.addEventListener('ended',()=>{if(ab.length===2){au.currentTime=cues[ab[0]][0]+0.01;au.play().catch(()=>{})}});
+$('abx').onclick=clearAB;
+// 글씨 크기
+const SIZES=[0.75,0.88,1,1.15,1.3];let size=Math.min(4,Math.max(0,+get('size',1)||0));
+function zoom(step){size=Math.min(4,Math.max(0,size+step));put('size',size);$('sc').style.setProperty('--z',SIZES[size]);$('fsm').disabled=size===0;$('fsp').disabled=size===4}
+$('fsm').onclick=()=>zoom(-1);$('fsp').onclick=()=>zoom(1);zoom(0);
+// 뒤로 감기 시간
+let sec=+get('sec',5)||5;
+function pick(v){sec=v;put('sec',v);const name=v===60?'1분':v+'초';$('rew').textContent='↺ '+name;document.querySelectorAll('[data-s]').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.s===v))}
+document.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>pick(+b.dataset.s));pick(sec);
