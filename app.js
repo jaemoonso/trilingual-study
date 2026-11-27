@@ -11,7 +11,7 @@ function load(){
   ab=[];cues.forEach(([t,kind,text,p,ko],k)=>{const d=el('div','ln '+kind,'');if(kind==='gap')d.textContent='(대답해 보세요)';else{const x=el('span','tx',text);x.lang=CODE[lang];d.append(x,el('span','pr',p),el('small','',ko))}if(kind==='t'){const s=el('button','star','☆');s.setAttribute('aria-label','구간 반복 별표');s.setAttribute('aria-pressed',false);s.onclick=e=>{e.stopPropagation();star(k)};d.prepend(s)}d.onclick=()=>{if(outside(k))clearAB();resume=0;au.currentTime=t+0.01;au.play().catch(()=>{})};sc.appendChild(d)});
   $('vtl').textContent=SHORT[lang];document.querySelector('[data-v=both]').textContent='한/'+SHORT[lang];document.querySelectorAll('[data-l]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.l===lang));
   showAB();mark(resume,true);saved();
-  if('mediaSession' in navigator)navigator.mediaSession.metadata=new MediaMetadata({title:lesson.title+(talk?' 대화':'')+' ('+NAME[lang]+')',artist:'3개 국어 듣기',artwork:[{src:'icon-512.png',sizes:'512x512',type:'image/png'}]});
+  if('mediaSession' in navigator)navigator.mediaSession.metadata=new MediaMetadata({title:lesson.title+(talk?' 대화':'')+' ('+NAME[lang]+')',artist:'Learning Languages',artwork:[{src:'icon-512.png',sizes:'512x512',type:'image/png'}]});
 }
 function mark(time,scroll){const c=cues;let k=-1;while(k+1<c.length&&c[k+1][0]<=time)k++;if(k===now)return;now=k;[...$('sc').children].forEach((d,j)=>d.classList.toggle('now',j===k));if(scroll&&k>0)$('sc').children[k].scrollIntoView({block:'center'})}
 au.onloadedmetadata=()=>{if(resume>0&&resume<au.duration-3)au.currentTime=resume;ready=true;rate()};
@@ -36,12 +36,12 @@ $('rew').onclick=()=>{resume=0;au.currentTime=Math.max(0,au.currentTime-sec);mar
 $('play').onclick=()=>au.paused?au.play().catch(()=>{}):au.pause();
 ['play','pause','emptied','ended'].forEach(n=>au.addEventListener(n,()=>{$('play').classList.toggle('on',!au.paused);$('play').setAttribute('aria-label',au.paused?'재생':'일시정지')}));
 // 첫 화면: 큰 묶음 → 그 안의 상황
-const GROUPS=[['food','🍽️','먹고 · 사기'],['move','🚇','이동 · 교통'],['trip','✈️','여행 · 건강']];
+const GROUPS=[['food','食','식사와 쇼핑'],['move','路','길과 교통'],['trip','旅','여행과 건강']];
 let group=null;
-function card(icon,title,desc,go){const b=el('button','',''),t=el('span','','');t.append(el('b','',title),el('small','',desc));b.append(el('span','ico',icon),t);b.onclick=go;$('list').appendChild(b)}
+function card(icon,title,desc,go){const b=el('button','',''),t=el('span','','');t.append(el('b','',title),el('small','',desc));if(icon){const m=el('span','mono',icon);m.lang='zh-TW';m.setAttribute('aria-hidden',true);b.append(m)}b.append(t);b.onclick=go;$('list').appendChild(b)}
 function home(g){
-  group=g;$('list').innerHTML='';$('crumb').hidden=!g;scrollTo(0,0);
-  if(g){$('gname').textContent=GROUPS.find(x=>x[0]===g)[2];lessons.filter(l=>l.group===g).forEach(l=>card(l.icon,l.title,l.desc,()=>open(l)));return}
+  group=g;$('list').innerHTML='';$('list').dataset.level=g?'in':'top';$('crumb').hidden=!g;scrollTo(0,0);
+  if(g){$('gname').textContent=GROUPS.find(x=>x[0]===g)[2];lessons.filter(l=>l.group===g).forEach(l=>card('',l.title,l.desc,()=>open(l)));return}
   GROUPS.forEach(([id,icon,name])=>{const a=lessons.filter(l=>l.group===id);if(a.length)card(icon,name,a.map(l=>l.title).join(' · '),()=>home(id))});
 }
 $('up').onclick=()=>home(null);
@@ -75,7 +75,7 @@ let sec=+get('sec',5)||5;
 function pick(v){sec=v;put('sec',v);const name=v===60?'1분':v+'초';$('rew').textContent='↺ '+name;document.querySelectorAll('[data-s]').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.s===v))}
 document.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>pick(+b.dataset.s));pick(sec);
 // 새로고침(홈 화면 앱에는 브라우저 버튼이 없음)
-$('reload').onclick=async()=>{$('reload').textContent='불러오는 중…';try{await (await navigator.serviceWorker.getRegistration()).update()}catch(e){}location.reload()};
+$('reload').onclick=async()=>{$('reload').textContent='불러오는 중';try{await (await navigator.serviceWorker.getRegistration()).update()}catch(e){}location.reload()};
 // 홈 화면에 추가: 아이폰은 방법 안내만 가능, 지원하는 브라우저(안드로이드 등)는 설치 창 표시
 let prompt_=null;
 const installed=navigator.standalone||matchMedia('(display-mode: standalone)').matches;
