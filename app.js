@@ -11,7 +11,7 @@ function load(){
   ab=[];cues.forEach(([t,kind,text,p,ko],k)=>{const d=el('div','ln '+kind,'');if(kind==='gap')d.textContent='(대답해 보세요)';else{const x=el('span','tx',text);x.lang=CODE[lang];d.append(x,el('span','pr',p),el('small','',ko))}if(kind==='t'){const s=el('button','star','☆');s.setAttribute('aria-label','구간 반복 별표');s.setAttribute('aria-pressed',false);s.onclick=e=>{e.stopPropagation();star(k)};d.prepend(s)}d.onclick=()=>{if(outside(k))clearAB();resume=0;au.currentTime=t+0.01;au.play().catch(()=>{})};sc.appendChild(d)});
   $('vtl').textContent=SHORT[lang];document.querySelector('[data-v=both]').textContent='한/'+SHORT[lang];document.querySelectorAll('[data-l]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.l===lang));
   showAB();mark(resume,true);saved();
-  if('mediaSession' in navigator)navigator.mediaSession.metadata=new MediaMetadata({title:lesson.title+(talk?' 대화':'')+' ('+NAME[lang]+')',artist:'Learning Languages',artwork:[{src:'icon-512.png',sizes:'512x512',type:'image/png'}]});
+  if('mediaSession' in navigator)navigator.mediaSession.metadata=new MediaMetadata({title:lesson.title+(talk?' 대화':'')+' ('+NAME[lang]+')',artist:'한 장면, 세 언어',artwork:[{src:'icon-512.png',sizes:'512x512',type:'image/png'}]});
 }
 function mark(time,scroll){const c=cues;let k=-1;while(k+1<c.length&&c[k+1][0]<=time)k++;if(k===now)return;now=k;[...$('sc').children].forEach((d,j)=>d.classList.toggle('now',j===k));if(scroll&&k>0)$('sc').children[k].scrollIntoView({block:'center'})}
 au.onloadedmetadata=()=>{if(resume>0&&resume<au.duration-3)au.currentTime=resume;ready=true;rate()};
