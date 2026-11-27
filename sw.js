@@ -1,5 +1,5 @@
 // 화면·자막은 네트워크 우선(끊기면 저장본), 음성은 "오프라인 저장"한 것만 저장본 사용
-const SHELL='shell-v7',FILES=['./','index.html','app.js','manifest.json','icon-192.png','icon-512.png','data/lessons.json','data/cafe.json','data/cafe_talk.json','data/restaurant.json','data/restaurant_talk.json'];
+const SHELL='shell-v8',FILES=['./','index.html','app.js','manifest.json','icon-192.png','icon-512.png','data/lessons.json','data/cafe.json','data/cafe_talk.json','data/restaurant.json','data/restaurant_talk.json','data/cafe2.json','data/cafe2_talk.json','data/store.json','data/store_talk.json','data/shopping.json','data/shopping_talk.json'];
 self.addEventListener('install',e=>e.waitUntil(caches.open(SHELL).then(c=>c.addAll(FILES.map(f=>new Request(f,{cache:'reload'})))).then(()=>self.skipWaiting())));
 self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));
 async function audio(req){
