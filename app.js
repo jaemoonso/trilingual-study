@@ -25,6 +25,15 @@ document.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{au.pause();lang=
 document.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{view=b.dataset.v;opts()});
 $('talk').onclick=()=>{au.pause();talk=!talk;put('talk',talk?'on':'off');scrollTo(0,0);load();opts()};
 $('prb').onclick=()=>{pr=!pr;opts()};
-$('rate').value=get('rate','1.0');$('rate').onchange=()=>{put('rate',$('rate').value);rate()};$('loop').onchange=()=>au.loop=$('loop').checked;
-fetch('data/lessons.json').then(r=>r.json()).then(a=>{lessons=a;a.forEach(l=>{const b=el('button','',l.title);b.append(el('small','',l.desc));b.onclick=()=>open(l);$('list').appendChild(b)})});
+$('rate').value=get('rate','1.0');$('rate').onchange=()=>{put('rate',$('rate').value);rate()};$('loop').onclick=()=>{au.loop=!au.loop;$('loop').setAttribute('aria-pressed',au.loop)};
+const clock=s=>isFinite(s)?`${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`:'0:00';
+let drag=false;
+function bar(){const t=ready?au.currentTime:resume;$('seek').max=au.duration||0;$('dur').textContent=clock(au.duration);if(!drag){$('seek').value=t;$('cur').textContent=clock(t)}}
+['timeupdate','durationchange','loadedmetadata','emptied','seeked'].forEach(n=>au.addEventListener(n,bar));
+$('seek').oninput=()=>{drag=true;$('cur').textContent=clock(+$('seek').value)};
+$('seek').onchange=()=>{drag=false;resume=0;au.currentTime=+$('seek').value;mark(au.currentTime,true)};
+$('rew').onclick=()=>{resume=0;au.currentTime=Math.max(0,au.currentTime-5);mark(au.currentTime,true)};
+$('play').onclick=()=>au.paused?au.play().catch(()=>{}):au.pause();
+['play','pause','emptied','ended'].forEach(n=>au.addEventListener(n,()=>{$('play').classList.toggle('on',!au.paused);$('play').setAttribute('aria-label',au.paused?'재생':'일시정지')}));
+fetch('data/lessons.json').then(r=>r.json()).then(a=>{lessons=a;a.forEach(l=>{const b=el('button','',''),t=el('span','','');t.append(el('b','',l.title),el('small','',l.desc));b.append(el('span','ico',l.icon),t);b.onclick=()=>open(l);$('list').appendChild(b)})});
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
