@@ -52,8 +52,10 @@ select.side{-webkit-appearance:none;appearance:none;text-align:center;text-align
 .top .seg{padding:2px;border-radius:9px}.top .seg button{min-height:28px;min-width:34px;padding:0 8px;border-radius:7px;font-size:13px}
 .top .chip{min-height:32px;padding:0 10px;border-radius:9px;font-size:13px}.top .fs{min-width:28px;height:30px;font-size:12px}
 .hero{position:relative;padding-top:56px}#reload{position:absolute;top:12px;right:12px;min-height:34px;padding:0 12px;border-radius:10px;background:rgba(255,255,255,.18);color:#fff;font-size:13px;font-weight:700}
+#crumb{display:flex;align-items:center;gap:12px;margin:0 0 12px}#crumb h2{margin:0;font-size:19px}#up{min-height:36px;padding:0 12px;border-radius:10px;background:var(--card);box-shadow:var(--sh);color:var(--ac);font-weight:700;font-size:14px}
+#list small{line-height:1.45}
 </style></head><body>
-<main id="home"><div class="hero"><button id="reload">↻ 새로고침</button><h1>3개 국어 듣기</h1><p>영어 · 日本語 · 中文, 같은 장면을 세 가지 말로</p></div><div id="list"></div><p class="hint">아이폰: Safari의 공유 버튼 → "홈 화면에 추가"</p></main>
+<main id="home"><div class="hero"><button id="reload">↻ 새로고침</button><h1>3개 국어 듣기</h1><p>영어 · 日本語 · 中文, 같은 장면을 세 가지 말로</p></div><div id="crumb" hidden><button id="up">‹ 전체</button><h2 id="gname"></h2></div><div id="list"></div><p class="hint">아이폰: Safari의 공유 버튼 → "홈 화면에 추가"</p></main>
 <section id="player" hidden>
 <div class="top"><div class="head"><button id="back" aria-label="목록">‹</button><h1 id="title"></h1><button class="fs" id="fsm" aria-label="글씨 작게">가−</button><button class="fs" id="fsp" aria-label="글씨 크게">가+</button><div class="seg" id="langs"><button data-l="en">EN</button><button data-l="ja">日</button><button data-l="zh">中</button></div></div>
 <div class="tools"><div class="seg"><button data-v="both">한/영</button><button data-v="t" id="vtl">영</button><button data-v="ko">한</button></div><button class="chip" id="prb">한/발음</button><button class="chip" id="talk">대화</button></div></div>

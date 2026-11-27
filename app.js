@@ -35,7 +35,17 @@ $('seek').onchange=()=>{drag=false;const v=+$('seek').value;if(ab.length===2&&(v
 $('rew').onclick=()=>{resume=0;au.currentTime=Math.max(0,au.currentTime-sec);mark(au.currentTime,true)};
 $('play').onclick=()=>au.paused?au.play().catch(()=>{}):au.pause();
 ['play','pause','emptied','ended'].forEach(n=>au.addEventListener(n,()=>{$('play').classList.toggle('on',!au.paused);$('play').setAttribute('aria-label',au.paused?'재생':'일시정지')}));
-fetch('data/lessons.json').then(r=>r.json()).then(a=>{lessons=a;a.forEach(l=>{const b=el('button','',''),t=el('span','','');t.append(el('b','',l.title),el('small','',l.desc));b.append(el('span','ico',l.icon),t);b.onclick=()=>open(l);$('list').appendChild(b)})});
+// 첫 화면: 큰 묶음 → 그 안의 상황
+const GROUPS=[['food','🍽️','먹고 · 사기'],['move','🚇','이동 · 교통'],['trip','✈️','여행 · 건강']];
+let group=null;
+function card(icon,title,desc,go){const b=el('button','',''),t=el('span','','');t.append(el('b','',title),el('small','',desc));b.append(el('span','ico',icon),t);b.onclick=go;$('list').appendChild(b)}
+function home(g){
+  group=g;$('list').innerHTML='';$('crumb').hidden=!g;scrollTo(0,0);
+  if(g){$('gname').textContent=GROUPS.find(x=>x[0]===g)[2];lessons.filter(l=>l.group===g).forEach(l=>card(l.icon,l.title,l.desc,()=>open(l)));return}
+  GROUPS.forEach(([id,icon,name])=>{const a=lessons.filter(l=>l.group===id);if(a.length)card(icon,name,a.map(l=>l.title).join(' · '),()=>home(id))});
+}
+$('up').onclick=()=>home(null);
+fetch('data/lessons.json').then(r=>r.json()).then(a=>{lessons=a;home(null)});
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 // 별표 두 개 사이 구간 반복
 let ab=[];
