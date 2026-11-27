@@ -1,6 +1,6 @@
 // 화면·자막은 네트워크 우선(끊기면 저장본), 음성은 "오프라인 저장"한 것만 저장본 사용
-const SHELL='shell-v5',FILES=['./','index.html','app.js','manifest.json','icon-192.png','icon-512.png','data/lessons.json','data/cafe.json','data/cafe_talk.json'];
-self.addEventListener('install',e=>e.waitUntil(caches.open(SHELL).then(c=>c.addAll(FILES)).then(()=>self.skipWaiting())));
+const SHELL='shell-v6',FILES=['./','index.html','app.js','manifest.json','icon-192.png','icon-512.png','data/lessons.json','data/cafe.json','data/cafe_talk.json'];
+self.addEventListener('install',e=>e.waitUntil(caches.open(SHELL).then(c=>c.addAll(FILES.map(f=>new Request(f,{cache:'reload'})))).then(()=>self.skipWaiting())));
 self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));
 async function audio(req){
   const hit=await (await caches.open('audio')).match(req.url);
@@ -14,5 +14,5 @@ self.addEventListener('fetch',e=>{
   const u=new URL(e.request.url);
   if(u.origin!==location.origin||e.request.method!=='GET')return;
   if(u.pathname.endsWith('.mp3')){if(e.request.destination)e.respondWith(audio(e.request));return}
-  e.respondWith(fetch(e.request).then(r=>{if(r.ok){const c=r.clone();caches.open(SHELL).then(s=>s.put(e.request,c))}return r}).catch(()=>caches.match(e.request,{ignoreSearch:true})));
+  e.respondWith(fetch(e.request.url,{cache:'no-cache'}).then(r=>{if(r.ok){const c=r.clone();caches.open(SHELL).then(s=>s.put(e.request,c))}return r}).catch(()=>caches.match(e.request,{ignoreSearch:true})));
 });

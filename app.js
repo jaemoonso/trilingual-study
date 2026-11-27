@@ -64,3 +64,5 @@ $('fsm').onclick=()=>zoom(-1);$('fsp').onclick=()=>zoom(1);zoom(0);
 let sec=+get('sec',5)||5;
 function pick(v){sec=v;put('sec',v);const name=v===60?'1분':v+'초';$('rew').textContent='↺ '+name;document.querySelectorAll('[data-s]').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.s===v))}
 document.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>pick(+b.dataset.s));pick(sec);
+// 새로고침(홈 화면 앱에는 브라우저 버튼이 없음)
+$('reload').onclick=async()=>{$('reload').textContent='불러오는 중…';try{await (await navigator.serviceWorker.getRegistration()).update()}catch(e){}location.reload()};
