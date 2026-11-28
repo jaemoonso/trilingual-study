@@ -36,7 +36,7 @@ $('rew').onclick=()=>{resume=0;au.currentTime=Math.max(0,au.currentTime-sec);mar
 $('play').onclick=()=>au.paused?au.play().catch(()=>{}):au.pause();
 ['play','pause','emptied','ended'].forEach(n=>au.addEventListener(n,()=>{$('play').classList.toggle('on',!au.paused);$('play').setAttribute('aria-label',au.paused?'재생':'일시정지')}));
 // 첫 화면: 큰 묶음 → 그 안의 상황
-const GROUPS=[['food','食','식사와 쇼핑'],['move','路','길과 교통'],['trip','旅','여행과 건강']];
+const GROUPS=[['food','食','식사와 쇼핑'],['move','路','길과 교통'],['trip','旅','여행과 건강'],['life','人','일상과 사람']];
 let group=null;
 function card(icon,title,desc,go){const b=el('button','',''),t=el('span','','');t.append(el('b','',title),el('small','',desc));if(icon){const m=el('span','mono',icon);m.lang='zh-TW';m.setAttribute('aria-hidden',true);b.append(m)}b.append(t);b.onclick=go;$('list').appendChild(b)}
 function home(g){
@@ -82,3 +82,6 @@ const installed=navigator.standalone||matchMedia('(display-mode: standalone)').m
 $('install').hidden=!!installed;
 addEventListener('beforeinstallprompt',e=>{e.preventDefault();prompt_=e});
 $('install').onclick=()=>{if(prompt_){prompt_.prompt();prompt_=null}else $('howto').hidden=!$('howto').hidden};
+// 안드로이드(갤럭시)는 안내 문구를 바꾼다
+const ua=navigator.userAgent;
+if(/Android/.test(ua))$('howto').innerHTML=/SamsungBrowser/.test(ua)?'<li>화면 아래 <b>메뉴(≡)</b>를 누릅니다.</li><li><b>"현재 페이지 추가"</b>를 누릅니다.</li><li><b>"홈 화면"</b>을 고릅니다.</li>':'<li>Chrome으로 이 주소를 엽니다.</li><li>오른쪽 위 <b>메뉴(⋮)</b>를 누릅니다.</li><li><b>"홈 화면에 추가"</b> 또는 <b>"앱 설치"</b>를 누릅니다.</li>';
